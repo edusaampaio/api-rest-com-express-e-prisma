@@ -12,18 +12,23 @@ app.get('/', (req, res)=>{
 
 app.post('/usuarios', async (req, res)=>{
     const { email, name, age} = req.body
-
     if(!email || !name || !age){
-       return res.status(400).json('você precisa inserir os dados.')
-    }else{
-       return res.status(201).json('Usário criado com sucesso!')
+        return res.status(400).json({error:'você não enviou nenhum dado!'})
     }
-
-    
+        try {
+             const usuario = await prisma.user.create({
+            data:{email, name, age}
+        })
+        res.status(201).json(usuario)
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({error:'erro ao criar usuario!'})
+        }
 })
 
-app.get('/usuario', (req, res)=>{
-    res.json()
+app.get('/usuarios', async (req, res)=>{
+    const usuarios = await prisma.user.findMany()
+    return res.status(200).json(usuarios)
 })
 
 app.listen(8080, ()=>{
